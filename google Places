@@ -1,0 +1,32 @@
+
+    func googlePlacesAutocomplete(address: String, token: GMSAutocompleteSessionToken, onAutocompleteCompletionHandler: @escaping GMSAutocompletePredictionsCallback) {
+        let filter = GMSAutocompleteFilter()
+        filter.type = .noFilter
+        filter.country = "IN"
+        var bounds: GMSCoordinateBounds? = nil
+        let location1Bounds = CLLocationCoordinate2DMake(Double(17.3850), Double(78.4867))
+        let location2Bounds = CLLocationCoordinate2DMake(Double(17.3850), Double(80.4867))
+        bounds = GMSCoordinateBounds(coordinate: location1Bounds, coordinate: location2Bounds)
+        googlePlacesClient.findAutocompletePredictions(fromQuery: address, bounds: bounds, boundsMode: .bias, filter: filter, sessionToken: token, callback: { (autocompletePredictions, error) in
+            var filteredPredictions:[GMSAutocompletePrediction] = []
+            if let autocompletePredictions = autocompletePredictions {
+                for prediction in autocompletePredictions {
+                    debugPrint(prediction.attributedFullText.description ," attributedFullText Array predictiosn");
+                    debugPrint(prediction.attributedPrimaryText.description ," attributedPrimaryText Array predictiosn");
+                    debugPrint(prediction.attributedSecondaryText?.description ?? "" ," attributedSecondaryText Array predictiosn");
+                    debugPrint(prediction.placeID.description ," placeID Array predictiosn");
+                    var shouldAdd = false
+                    for type in prediction.types {
+                        if type == "premise" || type == "street_number" || type == "street_address" || type == "establishment" || type == "route" {
+                            shouldAdd = true
+                            break
+                        }
+                    }
+                    if shouldAdd {
+                        filteredPredictions.append(prediction)
+                    }
+                }
+            }
+            onAutocompleteCompletionHandler(filteredPredictions, error)
+        })
+    }
